@@ -28,11 +28,11 @@
 
 
 (require 'f)
-(require 'bmp-project)
 (require 'eieio)
 
-(defclass bmp-poetry-project (bmp-project)
+(defclass bmp-poetry-project ()
   ((name :initarg :name)
+   (root-dir :initarg :root-dir)
    (toml-file :initarg :toml-file)
    (test-file :initarg :test-file)
    (init-file :initarg :init-file))
@@ -43,8 +43,8 @@
     (if (f-exists? (f-join default-directory toml-file))
         (let ((name (bmp-poetry-get-meta (f-join default-directory toml-file) "name")))
           (bmp-poetry-project
-           :root-dir default-directory
            :name name
+           :root-dir default-directory
            :toml-file toml-file
            :test-file (format "tests/test_%s.py" name)
            :init-file (format "%s/__init__.py" name))))))
