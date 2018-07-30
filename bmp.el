@@ -67,7 +67,7 @@
               (bmp-set-version project new-ver-str)
               (let ((affected-files (bmp-get-files project)))
                 (bmp-commit affected-files new-ver-str)
-                  (bmp-tag new-ver-str)))))))))
+                (bmp-tag new-ver-str)))))))))
 
 (defun bmp-git-dirty-p ()
   (not (string-equal (shell-command-to-string "git status --porcelain") "")))

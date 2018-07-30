@@ -29,6 +29,7 @@
 
 (require 'f)
 (require 'eieio)
+(require 'json)
 (require 'dash)
 
 (defclass bmp-node-project ()
