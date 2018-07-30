@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'f)
+(require 's)
 (require 'magit)
 (require 'dash)
 (require 'helm)
