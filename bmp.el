@@ -30,16 +30,17 @@
 ;;; Code:
 
 (require 'f)
-(require 'json)
 (require 'magit)
 (require 'dash)
 (require 'helm)
 (require 'projectile)
 
+(require 'bmp-node)
 (require 'bmp-poetry)
 
 (defcustom bmp-project-fns
-  '(bmp-poetry-get-project)
+  '(bmp-poetry-get-project
+    bmp-node-get-project)
   "Functions for getting projects")
 
 (defun bmp ()
