@@ -43,6 +43,7 @@
     bmp-node-get-project)
   "Functions for getting projects")
 
+;;;###autoload
 (defun bmp ()
   "Bump version for current project."
   (interactive)
@@ -57,12 +58,22 @@
     (let ((project (bmp-get-project bmp-project-fns)))
       (if (null project)
           (message "No project detected")
-        (let* ((version-str (bmp-get-version project))
-               (new-ver-str (bmp-new-version version-str bmp-type)))
-          (bmp-set-version project new-ver-str)
-          (let ((affected-files (bmp-get-files project)))
-            (bmp-commit affected-files new-ver-str)
-            (bmp-tag new-ver-str)))))))
+        (if (bmp-git-dirty-p)
+            (message "Git repository dirty")
+          (if (not (bmp-git-master-p))
+              (message "Not on master")
+            (let* ((version-str (bmp-get-version project))
+                   (new-ver-str (bmp-new-version version-str bmp-type)))
+              (bmp-set-version project new-ver-str)
+              (let ((affected-files (bmp-get-files project)))
+                (bmp-commit affected-files new-ver-str)
+                  (bmp-tag new-ver-str)))))))))
+
+(defun bmp-git-dirty-p ()
+  (not (string-equal (shell-command-to-string "git status --porcelain") "")))
+
+(defun bmp-git-master-p ()
+  (magit-branch-p "master"))
 
 (defun bmp-get-project (fns)
   (unless (null fns)
