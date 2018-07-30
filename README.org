@@ -1,0 +1,3 @@
+#+TITLE: bmp
+
+Version bumper for Emacs.
