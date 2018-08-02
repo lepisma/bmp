@@ -53,7 +53,8 @@
     (with-current-buffer (find-file-noselect file-path)
       (goto-char (point-min))
       (re-search-forward "^;; Version: \\([0-9]\\.[0-9]\\.[0-9]\\)")
-      (replace-match version-str nil nil nil 1))))
+      (replace-match version-str nil nil nil 1)
+      (save-buffer))))
 
 (cl-defmethod bmp-get-files ((obj bmp-elisp-project))
   (list (oref obj :main-file)))
