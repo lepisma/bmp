@@ -27,7 +27,6 @@
 ;;; Code:
 
 
-(require 'f)
 (require 'eieio)
 
 (defclass bmp-poetry-project ()
@@ -40,8 +39,8 @@
 
 (defun bmp-poetry-get-project ()
   (let ((toml-file "pyproject.toml"))
-    (if (f-exists? (f-join default-directory toml-file))
-        (let ((name (bmp-poetry-get-meta (f-join default-directory toml-file) "name")))
+    (if (file-exists-p (concat default-directory toml-file))
+        (let ((name (bmp-poetry-get-meta (concat default-directory toml-file) "name")))
           (bmp-poetry-project
            :name name
            :root-dir default-directory
@@ -50,7 +49,7 @@
            :init-file (format "%s/__init__.py" name))))))
 
 (cl-defmethod bmp-get-version ((obj bmp-poetry-project))
-  (let ((toml-path (f-join (oref obj :root-dir) (oref obj :toml-file))))
+  (let ((toml-path (concat (oref obj :root-dir) (oref obj :toml-file))))
     (bmp-poetry-get-meta toml-path "version")))
 
 (cl-defmethod bmp-set-version ((obj bmp-poetry-project) version-str)

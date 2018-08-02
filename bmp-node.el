@@ -27,10 +27,8 @@
 ;;; Code:
 
 
-(require 'f)
 (require 'eieio)
 (require 'json)
-(require 'dash)
 
 (defclass bmp-node-project ()
   ((root-dir :initarg :root-dir)
@@ -39,16 +37,14 @@
 
 (defun bmp-node-get-project ()
   (let ((json-file "package.json"))
-    (if (f-exists? (f-join default-directory json-file))
+    (if (file-exists-p (concat default-directory json-file))
         (bmp-node-project :root-dir default-directory
                           :json-file json-file))))
 
 (cl-defmethod bmp-get-version ((obj bmp-node-project))
-  (let ((json-path (f-join (oref obj :root-dir) (oref obj :json-file))))
-    (->> (f-read-text json-path)
-       (json-read-from-string)
-       (assoc 'version)
-       (cdr))))
+  (let* ((json-path (concat (oref obj :root-dir) (oref obj :json-file)))
+         (data (json-read-file json-path)))
+    (cdr (assoc 'version data))))
 
 (cl-defmethod bmp-set-version ((obj bmp-node-project) version-str)
   (let ((default-directory (oref obj :root-dir)))

@@ -29,12 +29,10 @@
 
 ;;; Code:
 
-(require 'f)
-(require 's)
 (require 'magit)
-(require 'dash)
 (require 'helm)
 (require 'projectile)
+(require 'cl-lib)
 
 (require 'bmp-node)
 (require 'bmp-poetry)
@@ -57,18 +55,17 @@
   "Bump version using the given bmp-type"
   (let ((default-directory (projectile-project-root)))
     (let ((project (bmp-get-project bmp-project-fns)))
-      (if (null project)
-          (message "No project detected")
-        (if (bmp-git-dirty-p)
-            (message "Git repository dirty")
-          (if (not (bmp-git-master-p))
-              (message "Not on master")
-            (let* ((version-str (bmp-get-version project))
-                   (new-ver-str (bmp-new-version version-str bmp-type)))
-              (bmp-set-version project new-ver-str)
-              (let ((affected-files (bmp-get-files project)))
-                (bmp-commit affected-files new-ver-str)
-                (bmp-tag new-ver-str)))))))))
+      (cl-block nil
+        (cond ((null project) (cl-return (message "No project detected")))
+              ((bmp-git-dirty-p) (cl-return (message "Git repository dirty")))
+              ((not (bmp-git-master-p)) (cl-return (message "Not on master"))))
+
+        (let* ((version-str (bmp-get-version project))
+               (new-ver-str (bmp-new-version version-str bmp-type)))
+          (bmp-set-version project new-ver-str)
+          (let ((affected-files (bmp-get-files project)))
+            (bmp-commit affected-files new-ver-str)
+            (bmp-tag new-ver-str)))))))
 
 (defun bmp-git-dirty-p ()
   (not (string-equal (shell-command-to-string "git status --porcelain") "")))
@@ -83,23 +80,22 @@
 
 (defun bmp-new-version (version-str bmp-type)
   "Return new version for the BMP-TYPE"
-  (let ((version (bmp-parse-version version-str)))
-    (-let [(major minor patch) version]
-      (bmp-unparse-version
-       (ecase bmp-type
-         ('patch (list major minor (+ 1 patch)))
-         ('minor (list major (+ 1 minor) 0))
-         ('major (list (+ 1 major) 0 0)))))))
+  (cl-destructuring-bind (major minor patch) (bmp-parse-version version-str)
+    (bmp-unparse-version
+     (cl-ecase bmp-type
+       ('patch (list major minor (+ 1 patch)))
+       ('minor (list major (+ 1 minor) 0))
+       ('major (list (+ 1 major) 0 0))))))
 
 (defun bmp-parse-version (version-str)
-  (-map #'string-to-number (s-split "\\." version-str)))
+  (mapcar #'string-to-number (split-string version-str "\\.")))
 
 (defun bmp-unparse-version (version)
-  (s-join "." (-map #'number-to-string version)))
+  (string-join (mapcar #'number-to-string version) "."))
 
 (defun bmp-commit (files version-str)
   "Simple blocking git add and commit. Should use magit here someday."
-  (let ((args (s-join " " (-map #'shell-quote-argument files))))
+  (let ((args (string-join (mapcar #'shell-quote-argument files) " ")))
     (shell-command-to-string (format "git add %s" args))
     (shell-command-to-string (format "git commit -m \"%s\"" version-str))))
 
