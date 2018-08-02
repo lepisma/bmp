@@ -39,7 +39,8 @@
 
 (defcustom bmp-project-fns
   '(bmp-poetry-get-project
-    bmp-node-get-project)
+    bmp-node-get-project
+    bmp-elisp-get-project)
   "Functions for getting projects")
 
 ;;;###autoload
