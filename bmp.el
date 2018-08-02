@@ -36,6 +36,7 @@
 
 (require 'bmp-node)
 (require 'bmp-poetry)
+(require 'bmp-elisp)
 
 (defcustom bmp-project-fns
   '(bmp-poetry-get-project
