@@ -66,14 +66,14 @@
 (defun bmp-poetry-set-init (init-path version-str)
   (with-current-buffer (find-file-noselect init-path)
     (goto-char (point-min))
-    (re-search-forward "^__version__ = \"?\\(.*?\\)\"?$")
+    (re-search-forward "^__version__ = [\"']?\\(.*?\\)[\"']?$")
     (replace-match version-str nil nil nil 1)
     (save-buffer)))
 
 (defun bmp-poetry-set-test (test-path version-str)
   (with-current-buffer (find-file-noselect test-path)
     (goto-char (point-min))
-    (re-search-forward "assert __version__ == \"?\\(.*?\\)\"?$")
+    (re-search-forward "assert __version__ == [\"']?\\(.*?\\)[\"']?$")
     (replace-match version-str nil nil nil 1)
     (save-buffer)))
 
@@ -81,7 +81,7 @@
   "Parse values from toml"
   (with-current-buffer (find-file-noselect toml-path)
     (goto-char (point-min))
-    (re-search-forward (format "^%s ?= ?\"?\\(.*?\\)\"?$" key))
+    (re-search-forward (format "^%s ?= ?[\"']?\\(.*?\\)[\"']?$" key))
     (match-string-no-properties 1)))
 
 (provide 'bmp-poetry)
