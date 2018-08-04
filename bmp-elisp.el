@@ -45,14 +45,14 @@
   (let* ((file-path (concat (oref obj :root-dir) (oref obj :main-file))))
     (with-current-buffer (find-file-noselect file-path)
       (goto-char (point-min))
-      (re-search-forward "^;; Version: \\([0-9]\\.[0-9]\\.[0-9]\\)")
+      (re-search-forward "^;; Version: \\(.*?\\)")
       (match-string-no-properties 1))))
 
 (cl-defmethod bmp-set-version ((obj bmp-elisp-project) version-str)
   (let ((file-path (concat (oref obj :root-dir) (oref obj :main-file))))
     (with-current-buffer (find-file-noselect file-path)
       (goto-char (point-min))
-      (re-search-forward "^;; Version: \\([0-9]\\.[0-9]\\.[0-9]\\)")
+      (re-search-forward "^;; Version: \\(.*?\\)")
       (replace-match version-str nil nil nil 1)
       (save-buffer))))
 
