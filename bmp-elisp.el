@@ -42,7 +42,7 @@
         (bmp-elisp-project :root-dir default-directory :main-file main-file))))
 
 (cl-defmethod bmp-get-version ((obj bmp-elisp-project))
-  (let* ((file-path (concat (oref obj :root-dir) (oref obj :main-file))))
+  (let ((file-path (concat (oref obj :root-dir) (oref obj :main-file))))
     (with-current-buffer (find-file-noselect file-path)
       (goto-char (point-min))
       (re-search-forward "^;; Version: \\(.*?\\)$")

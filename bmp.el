@@ -37,11 +37,13 @@
 (require 'bmp-node)
 (require 'bmp-poetry)
 (require 'bmp-elisp)
+(require 'bmp-lisp)
 
 (defcustom bmp-project-fns
   '(bmp-poetry-get-project
     bmp-node-get-project
-    bmp-elisp-get-project)
+    bmp-elisp-get-project
+    bmp-lisp-get-project)
   "Functions for getting projects")
 
 ;;;###autoload
