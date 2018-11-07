@@ -1,3 +1,33 @@
 #+TITLE: bmp
 
-Version bumper for Emacs.
+Semver bumper for Emacs. Run ~bmp~ inside a project to choose the type of update
+required.
+
+For bmp to detect a /type of project/ (like poetry based), you need to write a
+project /detector/ function and a class with few methods.
+
+A detector function might look at the current ~default-directory~ and return an
+instance of the new project class. For example, the node detector is the
+following:
+
+#+BEGIN_SRC emacs-lisp
+  (defun bmp-node-get-project ()
+    (let ((json-file "package.json"))
+      (if (file-exists-p (concat default-directory json-file))
+          (bmp-node-project :root-dir default-directory
+                            :json-file json-file))))
+#+END_SRC
+
+Once the detector is defined, add it to the list ~bmp-project-fns~ which is walked
+over by bmp sequentially.
+
+The class for the project needs to define the following methods:
+
+1. ~bmp-get-version~: Provide the current semver in the form of a string.
+2. ~bmp-set-version~: Writes the given semver string wherever needed in the
+   project.
+3. ~bmp-get-files~: Return a list of relative file paths which will be affected by
+   the change of ~set-version~, used for git commiting.
+
+Take a look at one of the existing files to see what's happening. There are many
+design improvements that I will be doing as an when I get time.
