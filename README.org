@@ -30,4 +30,4 @@ The class for the project needs to define the following methods:
    the change of ~set-version~, used for git commiting.
 
 Take a look at one of the existing files to see what's happening. There are many
-design improvements that I will be doing as an when I get time.
+design improvements that I will be doing as and when I get time.
