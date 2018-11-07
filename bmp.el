@@ -72,7 +72,8 @@
             (bmp-tag new-ver-str)))))))
 
 (defun bmp-git-dirty-p ()
-  (not (string-equal (shell-command-to-string "git status --porcelain") "")))
+  (let ((diffs (mapcar #'string-trim (split-string (shell-command-to-string "git status --porcelain") "\n"))))
+    (not (null (cl-remove-if (lambda (l) (or (string-prefix-p "?" l) (string-equal l ""))) diffs)))))
 
 (defun bmp-git-master-p ()
   (magit-branch-p "master"))
