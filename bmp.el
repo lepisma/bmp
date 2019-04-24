@@ -105,7 +105,7 @@
     (shell-command-to-string (format "git commit -m \"%s\"" version-str))))
 
 (defun bmp-tag (version-str)
-  (magit-tag version-str "master"))
+  (magit-tag-create version-str "master"))
 
 (provide 'bmp)
 
