@@ -3,7 +3,7 @@
 ;; Copyright (c) 2018 Abhinav Tushar
 
 ;; Author: Abhinav Tushar <lepisma@fastmail.com>
-;; Version: 0.2.5
+;; Version: 0.2.6
 ;; Package-Requires: ((emacs "25") (magit "2.90.1") (helm "3.2") (projectile "2.0.0"))
 ;; URL: https://github.com/lepisma/bmp
 
