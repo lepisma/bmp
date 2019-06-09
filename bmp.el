@@ -4,7 +4,7 @@
 
 ;; Author: Abhinav Tushar <lepisma@fastmail.com>
 ;; Version: 0.2.6
-;; Package-Requires: ((emacs "25") (magit "2.90.1") (helm "3.2") (projectile "2.0.0"))
+;; Package-Requires: ((emacs "26") (magit "2.90.1") (helm "3.2") (projectile "2.0.0"))
 ;; URL: https://github.com/lepisma/bmp
 
 ;;; Commentary:
