@@ -83,7 +83,7 @@ problem."
 
       (when (not (bmp-git-release-branch-p))
         ;; TODO: This doesn't look like a good strategy. Maybe we should allow
-        ;;       to create a custom preconditions.
+        ;;       to create custom preconditions.
         (cl-return (message "Not on release branch (%s)" bmp-release-branch)))
 
       (let ((version-str (oref project :version-str))
