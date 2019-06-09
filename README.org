@@ -22,7 +22,7 @@ following:
 Once the detector is defined, add it to the list ~bmp-project-fns~ which is walked
 over by bmp sequentially.
 
-The class for the project needs to define the following methods:
+The class for a project needs to define the following methods:
 
 1. ~bmp-get-version-str~: Provide the current semver in the form of a string.
 2. ~bmp-set-version-str~: Writes the given semver string wherever needed in the
