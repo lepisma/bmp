@@ -27,10 +27,11 @@
 ;;; Code:
 
 
+(require 'bmp-base)
 (require 'eieio)
 (require 'json)
 
-(defclass bmp-node-project ()
+(defclass bmp-node-project (bmp-project)
   ((root-dir :initarg :root-dir)
    (json-file :initarg :json-file))
   "A node project")
@@ -41,16 +42,16 @@
         (bmp-node-project :root-dir default-directory
                           :json-file json-file))))
 
-(cl-defmethod bmp-get-version ((obj bmp-node-project))
+(cl-defmethod bmp-get-version-str ((obj bmp-node-project))
   (let* ((json-path (concat (oref obj :root-dir) (oref obj :json-file)))
          (data (json-read-file json-path)))
     (cdr (assoc 'version data))))
 
-(cl-defmethod bmp-set-version ((obj bmp-node-project) version-str)
+(cl-defmethod bmp-set-version-str ((obj bmp-node-project) version-str)
   (let ((default-directory (oref obj :root-dir)))
     (shell-command-to-string (format "npm --no-git-tag-version version %s" version-str))))
 
-(cl-defmethod bmp-get-files ((obj bmp-node-project))
+(cl-defmethod bmp-changed-files ((obj bmp-node-project))
   (list (oref obj :json-file)))
 
 (provide 'bmp-node)

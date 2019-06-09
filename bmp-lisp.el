@@ -27,9 +27,10 @@
 ;;; Code:
 
 
+(require 'bmp-base)
 (require 'eieio)
 
-(defclass bmp-lisp-project ()
+(defclass bmp-lisp-project (bmp-project)
   ((root-dir :initarg :root-dir)
    (system-file :initarg :system-file))
   "A common lisp project")
@@ -38,22 +39,26 @@
   (let ((system-file (car (last (directory-files default-directory nil "^.*\\.asd$")))))
     (bmp-lisp-project :root-dir default-directory :system-file system-file)))
 
-(cl-defmethod bmp-get-version ((obj bmp-lisp-project))
+(cl-defmethod bmp-get-version-str ((obj bmp-lisp-project))
+  "String representation of project version."
   (let ((system-file-path (concat (oref obj :root-dir) (oref obj :system-file))))
-    (with-current-buffer (find-file-noselect system-file-path)
-      (let ((buffer-text (buffer-substring-no-properties (point-min) (point-max))))
-        (plist-get (car (read-from-string buffer-text)) :version)))))
+    (save-excursion
+      (with-current-buffer (find-file-noselect system-file-path)
+        (let ((buffer-text (buffer-substring-no-properties (point-min) (point-max))))
+          (plist-get (car (read-from-string buffer-text)) :version))))))
 
 (cl-defmethod bmp-set-version ((obj bmp-lisp-project) version-str)
+  "Set string version in system file."
   (let ((system-file-path (concat (oref obj :root-dir) (oref obj :system-file)))
-        (old-version-str (bmp-get-version obj))) ; TODO: should also provide this in the class maybe
-    (with-current-buffer (find-file-noselect system-file-path)
-      (goto-char (point-min))
-      (re-search-forward old-version-str)
-      (replace-match version-str)
-      (save-buffer))))
+        (old-version-str (oref obj :version-str)))
+    (save-excursion
+      (with-current-buffer (find-file-noselect system-file-path)
+        (goto-char (point-min))
+        (re-search-forward old-version-str)
+        (replace-match version-str)
+        (save-buffer)))))
 
-(cl-defmethod bmp-get-files ((obj bmp-lisp-project))
+(cl-defmethod bmp-changed-files ((obj bmp-lisp-project))
   (list (oref obj :system-file)))
 
 (provide 'bmp-lisp)

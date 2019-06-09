@@ -27,9 +27,10 @@
 ;;; Code:
 
 
+(require 'bmp-base)
 (require 'eieio)
 
-(defclass bmp-poetry-project ()
+(defclass bmp-poetry-project (bmp-project)
   ((name :initarg :name)
    (root-dir :initarg :root-dir)
    (toml-file :initarg :toml-file)
@@ -39,50 +40,62 @@
 
 (defun bmp-poetry-get-project ()
   (let ((toml-file "pyproject.toml"))
-    (if (file-exists-p (concat default-directory toml-file))
-        (let ((name (bmp-poetry-get-meta (concat default-directory toml-file) "name")))
-          (bmp-poetry-project
-           :name name
-           :root-dir default-directory
-           :toml-file toml-file
-           :test-file (format "tests/test_%s.py" name)
-           :init-file (format "%s/__init__.py" name))))))
+    (when (file-exists-p (concat default-directory toml-file))
+      (let* ((name (bmp-poetry-get-name (concat default-directory toml-file)))
+             (test-filepath (format "tests/test_%s.py" name))
+             (init-filepath (format "%s/__init__.py" name)))
+        (bmp-poetry-project
+         :name name
+         :root-dir default-directory
+         :toml-file toml-file
+         :test-file (when (file-exists-p test-filepath) test-filepath)
+         :init-file (when (file-exists-p init-filepath) init-filepath))))))
 
-(cl-defmethod bmp-get-version ((obj bmp-poetry-project))
+(cl-defmethod bmp-get-version-str ((obj bmp-poetry-project))
   (let ((toml-path (concat (oref obj :root-dir) (oref obj :toml-file))))
     (bmp-poetry-get-meta toml-path "version")))
 
-(cl-defmethod bmp-set-version ((obj bmp-poetry-project) version-str)
+(cl-defmethod bmp-set-version-str ((obj bmp-poetry-project) version-str)
   (let ((default-directory (oref obj :root-dir)))
     (shell-command-to-string (format "poetry version %s" version-str))
-    (bmp-poetry-set-test (oref obj :test-file) version-str)
-    (bmp-poetry-set-init (oref obj :init-file) version-str)))
+    (when (oref obj :test-file)
+      (bmp-poetry-set-test (oref obj :test-file) version-str))
+    (when (oref obj :init-file)
+      (bmp-poetry-set-init (oref obj :init-file) version-str))))
 
-(cl-defmethod bmp-get-files ((obj bmp-poetry-project))
-  (list (oref obj :toml-file)
-        (oref obj :test-file)
-        (oref obj :init-file)))
+(cl-defmethod bmp-changed-files ((obj bmp-poetry-project))
+  (cl-remove-if #'null (list (oref obj :toml-file)
+                             (oref obj :test-file)
+                             (oref obj :init-file))))
 
 (defun bmp-poetry-set-init (init-path version-str)
-  (with-current-buffer (find-file-noselect init-path)
-    (goto-char (point-min))
-    (re-search-forward "^__version__ = [\"']?\\(.*?\\)[\"']?$")
-    (replace-match version-str nil nil nil 1)
-    (save-buffer)))
+  (save-excursion
+    (with-current-buffer (find-file-noselect init-path)
+      (goto-char (point-min))
+      (re-search-forward "^__version__ = [\"']?\\(.*?\\)[\"']?$")
+      (replace-match version-str nil nil nil 1)
+      (save-buffer))))
 
 (defun bmp-poetry-set-test (test-path version-str)
-  (with-current-buffer (find-file-noselect test-path)
-    (goto-char (point-min))
-    (re-search-forward "assert __version__ == [\"']?\\(.*?\\)[\"']?$")
-    (replace-match version-str nil nil nil 1)
-    (save-buffer)))
+  (save-excursion
+    (with-current-buffer (find-file-noselect test-path)
+      (goto-char (point-min))
+      (re-search-forward "assert __version__ == [\"']?\\(.*?\\)[\"']?$")
+      (replace-match version-str nil nil nil 1)
+      (save-buffer))))
+
+(defun bmp-poetry-get-name (toml-path)
+  "Return name of the package converted according to python
+naming convention."
+  (replace-regexp-in-string "-" "_" (bmp-poetry-get-meta toml-path "name")))
 
 (defun bmp-poetry-get-meta (toml-path key)
   "Parse values from toml"
-  (with-current-buffer (find-file-noselect toml-path)
-    (goto-char (point-min))
-    (re-search-forward (format "^%s ?= ?[\"']?\\(.*?\\)[\"']?$" key))
-    (match-string-no-properties 1)))
+  (save-excursion
+    (with-current-buffer (find-file-noselect toml-path)
+      (goto-char (point-min))
+      (re-search-forward (format "^%s ?= ?[\"']?\\(.*?\\)[\"']?$" key))
+      (match-string-no-properties 1))))
 
 (provide 'bmp-poetry)
 

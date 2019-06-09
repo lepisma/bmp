@@ -26,37 +26,44 @@
 
 ;;; Code:
 
-
+(require 'bmp-base)
 (require 'eieio)
 
-(defclass bmp-elisp-project ()
+(defclass bmp-elisp-project (bmp-project)
   ((root-dir :initarg :root-dir)
    (main-file :initarg :main-file))
   "An elisp project")
 
 (defun bmp-elisp-get-project ()
+  "Return project if we are in an elisp project (based on
+default-directory."
   (let ((main-file (car (last (directory-files default-directory nil "^.*\\.el$")))))
-    (if (with-current-buffer (find-file-noselect (concat default-directory main-file))
-          (goto-char (point-min))
-          (re-search-forward "^;; Version:" nil t))
-        (bmp-elisp-project :root-dir default-directory :main-file main-file))))
+    (save-excursion
+      (if (with-current-buffer (find-file-noselect (concat default-directory main-file))
+            (goto-char (point-min))
+            (re-search-forward "^;; Version:" nil t))
+          (bmp-elisp-project :root-dir default-directory :main-file main-file)))))
 
-(cl-defmethod bmp-get-version ((obj bmp-elisp-project))
+(cl-defmethod bmp-get-version-str ((obj bmp-elisp-project))
+  "Parse string representation of version from main project file."
   (let ((file-path (concat (oref obj :root-dir) (oref obj :main-file))))
-    (with-current-buffer (find-file-noselect file-path)
-      (goto-char (point-min))
-      (re-search-forward "^;; Version: \\(.*?\\)$")
-      (match-string-no-properties 1))))
+    (save-excursion
+      (with-current-buffer (find-file-noselect file-path)
+        (goto-char (point-min))
+        (re-search-forward "^;; Version: \\(.*?\\)$")
+        (match-string-no-properties 1)))))
 
-(cl-defmethod bmp-set-version ((obj bmp-elisp-project) version-str)
+(cl-defmethod bmp-set-version-str ((obj bmp-elisp-project) version-str)
+  "Set string version in main file."
   (let ((file-path (concat (oref obj :root-dir) (oref obj :main-file))))
-    (with-current-buffer (find-file-noselect file-path)
-      (goto-char (point-min))
-      (re-search-forward "^;; Version: \\(.*?\\)$")
-      (replace-match version-str nil nil nil 1)
-      (save-buffer))))
+    (save-excursion
+      (with-current-buffer (find-file-noselect file-path)
+        (goto-char (point-min))
+        (re-search-forward "^;; Version: \\(.*?\\)$")
+        (replace-match version-str nil nil nil 1)
+        (save-buffer)))))
 
-(cl-defmethod bmp-get-files ((obj bmp-elisp-project))
+(cl-defmethod bmp-changed-files ((obj bmp-elisp-project))
   (list (oref obj :main-file)))
 
 (provide 'bmp-elisp)

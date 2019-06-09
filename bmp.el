@@ -34,6 +34,7 @@
 (require 'projectile)
 (require 'cl-lib)
 
+(require 'bmp-base)
 (require 'bmp-node)
 (require 'bmp-poetry)
 (require 'bmp-elisp)
@@ -46,66 +47,56 @@
     bmp-lisp-get-project)
   "Functions for getting projects")
 
+(defcustom bmp-release-branch "master"
+  "Branch where releases (and so bumps) happen.")
+
+(defun bmp-current-project ()
+  "Return current project if we are in one."
+  (let ((default-directory (projectile-project-root)))
+    (cl-block nil
+      (dolist (fn bmp-project-fns)
+        (let ((project (funcall fn)))
+          (when project (cl-return project)))))))
+
+(defun bmp-git-dirty-p ()
+  "Check if git is dirty. Git not being dirty is a precondition
+for bumping. We might need some changes here if this becomes a
+problem."
+  (let ((diffs (mapcar #'string-trim (split-string (shell-command-to-string "git status --porcelain") "\n"))))
+    (not (null (cl-remove-if (lambda (l) (or (string-prefix-p "?" l) (string-equal l ""))) diffs)))))
+
+(defun bmp-git-release-branch-p ()
+  "Check if we are on the release branch for current project."
+  (magit-branch-p bmp-release-branch))
+
 ;;;###autoload
 (defun bmp ()
   "Bump version for current project."
   (interactive)
-  (helm :sources (helm-build-sync-source "bump type"
-                   :candidates '(("patch" . patch) ("minor" . minor) ("major" . major))
-                   :action #'bmp-bump)
-        :buffer "*helm bump*"))
+  (let ((project (bmp-current-project)))
+    (cl-block nil
+      (when (null project)
+        (cl-return (message "No project detected")))
 
-(defun bmp-bump (bmp-type)
-  "Bump version using the given bmp-type"
-  (let ((default-directory (projectile-project-root)))
-    (let ((project (bmp-get-project bmp-project-fns)))
-      (cl-block nil
-        (cond ((null project) (cl-return (message "No project detected")))
-              ((bmp-git-dirty-p) (cl-return (message "Git repository dirty")))
-              ((not (bmp-git-master-p)) (cl-return (message "Not on master"))))
+      (when (bmp-git-dirty-p)
+        (cl-return (message "Git repository dirty")))
 
-        (let* ((version-str (bmp-get-version project))
-               (new-ver-str (bmp-new-version version-str bmp-type)))
-          (bmp-set-version project new-ver-str)
-          (let ((affected-files (bmp-get-files project)))
-            (bmp-commit affected-files new-ver-str)
-            (bmp-tag new-ver-str)))))))
+      (when (not (bmp-git-release-branch-p))
+        ;; TODO: This doesn't look like a good strategy. Maybe we should allow
+        ;;       to create a custom preconditions.
+        (cl-return (message "Not on release branch (%s)" bmp-release-branch)))
 
-(defun bmp-git-dirty-p ()
-  (let ((diffs (mapcar #'string-trim (split-string (shell-command-to-string "git status --porcelain") "\n"))))
-    (not (null (cl-remove-if (lambda (l) (or (string-prefix-p "?" l) (string-equal l ""))) diffs)))))
-
-(defun bmp-git-master-p ()
-  (magit-branch-p "master"))
-
-(defun bmp-get-project (fns)
-  (unless (null fns)
-    (or (funcall (car fns))
-        (bmp-get-project (cdr fns)))))
-
-(defun bmp-new-version (version-str bmp-type)
-  "Return new version for the BMP-TYPE"
-  (cl-destructuring-bind (major minor patch) (bmp-parse-version version-str)
-    (bmp-unparse-version
-     (cl-ecase bmp-type
-       ('patch (list major minor (+ 1 patch)))
-       ('minor (list major (+ 1 minor) 0))
-       ('major (list (+ 1 major) 0 0))))))
-
-(defun bmp-parse-version (version-str)
-  (mapcar #'string-to-number (split-string version-str "\\.")))
-
-(defun bmp-unparse-version (version)
-  (string-join (mapcar #'number-to-string version) "."))
-
-(defun bmp-commit (files version-str)
-  "Simple blocking git add and commit. Should use magit here someday."
-  (let ((args (string-join (mapcar #'shell-quote-argument files) " ")))
-    (shell-command-to-string (format "git add %s" args))
-    (shell-command-to-string (format "git commit -m \"%s\"" version-str))))
-
-(defun bmp-tag (version-str)
-  (magit-tag-create version-str "master"))
+      (let ((version-str (oref project :version-str))
+            (bmp-types '(patch minor major)))
+        (helm :sources (helm-build-sync-source "bump type"
+                         :candidates (mapcar (lambda (bmp-type) (cons (format "%s [%s → %s]"
+                                                                         (symbol-name bmp-type)
+                                                                         version-str
+                                                                         (bmp-new-version version-str bmp-type))
+                                                                 bmp-type))
+                                             bmp-types)
+                         :action (lambda (bmp-type) (bmp-bump project bmp-type)))
+              :buffer "*helm bump*")))))
 
 (provide 'bmp)
 
