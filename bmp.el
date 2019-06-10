@@ -92,7 +92,7 @@ problem."
                          :candidates (mapcar (lambda (bmp-type) (cons (format "%s [%s → %s]"
                                                                          (symbol-name bmp-type)
                                                                          version-str
-                                                                         (bmp-new-version version-str bmp-type))
+                                                                         (bmp-bump-version-str version-str bmp-type))
                                                                  bmp-type))
                                              bmp-types)
                          :action (lambda (bmp-type) (bmp-bump project bmp-type)))

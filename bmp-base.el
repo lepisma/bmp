@@ -49,6 +49,10 @@
       ('minor (list major (+ 1 minor) 0))
       ('major (list (+ 1 major) 0 0)))))
 
+(defun bmp-bump-version-str (version-str bmp-type)
+  "Return new VERSION-STR based on BMP-TYPE."
+  (bmp-format-version (bmp-bump-version (bmp-parse-version version-str) bmp-type)))
+
 (defclass bmp-project ()
   ((version-str :initarg :version-str))
   "Base class for a project"
@@ -63,9 +67,8 @@ implemented for a new project type.")
 
 (cl-defmethod bmp-bump ((obj bmp-project) bmp-type)
   "Update project's version based on given BMP-TYPE."
-  (let* ((version (bmp-parse-version (oref obj :version-str)))
-         (new-version (bmp-bump-version version bmp-type)))
-    (bmp-set-version-str obj (bmp-format-version new-version))
+  (let ((new-version-str (bmp-bump-version-str (oref obj :version-str) bmp-type)))
+    (bmp-set-version-str obj new-version-str)
     (bmp-commit obj)
     (bmp-tag obj)))
 
