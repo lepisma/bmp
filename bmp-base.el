@@ -79,7 +79,9 @@ and updates version in files."
   (oset obj :version-str version-str))
 
 (cl-defmethod bmp-commit ((obj bmp-project))
-  "Simple blocking git add and commit. Should use magit here someday."
+  "Simple blocking git add and commit. Not using magit for now
+since I want the commands to block before running tag. There
+should be a magit way here."
   (let ((args (string-join (mapcar #'shell-quote-argument (bmp-changed-files obj)) " ")))
     (shell-command-to-string (format "git add %s" args))
     (shell-command-to-string (format "git commit -m \"%s\"" (oref obj :version-str)))))
