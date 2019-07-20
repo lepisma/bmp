@@ -69,8 +69,7 @@ implemented for a new project type.")
   "Update project's version based on given BMP-TYPE."
   (let ((new-version-str (bmp-bump-version-str (oref obj :version-str) bmp-type)))
     (bmp-set-version-str obj new-version-str)
-    (bmp-commit obj)
-    (bmp-tag obj)))
+    (bmp-commit-and-tag obj)))
 
 (cl-defmethod bmp-set-version-str :after ((obj bmp-project) version-str)
   "Set version-str in the object too. A primary set method still
@@ -78,17 +77,14 @@ needs to be implemented which actually goes in the file system
 and updates version in files."
   (oset obj :version-str version-str))
 
-(cl-defmethod bmp-commit ((obj bmp-project))
-  "Simple blocking git add and commit. Not using magit for now
-since I want the commands to block before running tag. There
+(cl-defmethod bmp-commit-and-tag ((obj bmp-project))
+  "Simple blocking git add, commit and tag. Not using magit for
+now since I want the commands to block before running tag. There
 should be a magit way here."
   (let ((args (string-join (mapcar #'shell-quote-argument (bmp-changed-files obj)) " ")))
     (shell-command-to-string (format "git add %s" args))
-    (shell-command-to-string (format "git commit -m \"%s\"" (oref obj :version-str)))))
-
-(cl-defmethod bmp-tag ((obj bmp-project))
-  "Tag release branch with given version-str."
-  (magit-tag-create (oref obj :version-str) bmp-release-branch))
+    (shell-command-to-string (format "git commit -m \"%s\"" (oref obj :version-str)))
+    (shell-command-to-string (format "git tag %s" (oref obj :version-str)))))
 
 (cl-defmethod initialize-instance :after ((obj bmp-project) &rest _args)
   "Initializer which handles setting the current version-str in
