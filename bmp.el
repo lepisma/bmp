@@ -38,12 +38,14 @@
 (require 'bmp-node)
 (require 'bmp-poetry)
 (require 'bmp-elisp)
+(require 'bmp-lein)
 (require 'bmp-lisp)
 
 (defcustom bmp-project-fns
   '(bmp-poetry-get-project
     bmp-node-get-project
     bmp-elisp-get-project
+    bmp-lein-get-project
     bmp-lisp-get-project)
   "Functions for getting projects")
 
