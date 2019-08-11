@@ -37,7 +37,8 @@
 
 (defun bmp-lisp-get-project ()
   (let ((system-file (car (last (directory-files default-directory nil "^.*\\.asd$")))))
-    (bmp-lisp-project :root-dir default-directory :system-file system-file)))
+    (when system-file
+      (bmp-lisp-project :root-dir default-directory :system-file system-file))))
 
 (cl-defmethod bmp-get-version-str ((obj bmp-lisp-project))
   "String representation of project version."

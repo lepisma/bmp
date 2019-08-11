@@ -39,10 +39,10 @@
 default-directory."
   (let ((main-file (car (last (directory-files default-directory nil "^.*\\.el$")))))
     (save-excursion
-      (if (with-current-buffer (find-file-noselect (concat default-directory main-file))
-            (goto-char (point-min))
-            (re-search-forward "^;; Version:" nil t))
-          (bmp-elisp-project :root-dir default-directory :main-file main-file)))))
+      (when (with-current-buffer (find-file-noselect (concat default-directory main-file))
+              (goto-char (point-min))
+              (re-search-forward "^;; Version:" nil t))
+        (bmp-elisp-project :root-dir default-directory :main-file main-file)))))
 
 (cl-defmethod bmp-get-version-str ((obj bmp-elisp-project))
   "Parse string representation of version from main project file."
