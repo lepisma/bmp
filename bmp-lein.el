@@ -47,7 +47,7 @@
         (let ((buffer-text (buffer-substring-no-properties (point-min) (point-max))))
           (nth 2 (member 'defproject (car (read-from-string buffer-text)))))))))
 
-(cl-defmethod bmp-set-version-str ((obj bmp-lein-project))
+(cl-defmethod bmp-set-version-str ((obj bmp-lein-project) version-str)
   (let ((project-file-path (concat (oref obj :root-dir) (oref obj :project-file)))
         (old-version-str (oref obj :version-str)))
     (save-excursion
