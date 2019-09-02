@@ -55,7 +55,7 @@
     (save-excursion
       (with-current-buffer (find-file-noselect system-file-path)
         (goto-char (point-min))
-        (re-search-forward (regex-quote old-version-str))
+        (re-search-forward (regexp-quote old-version-str))
         (replace-match version-str)
         (save-buffer)))))
 
