@@ -48,7 +48,7 @@
         (let ((buffer-text (buffer-substring-no-properties (point-min) (point-max))))
           (plist-get (car (read-from-string buffer-text)) :version))))))
 
-(cl-defmethod bmp-set-version ((obj bmp-lisp-project) version-str)
+(cl-defmethod bmp-set-version-str ((obj bmp-lisp-project) version-str)
   "Set string version in system file."
   (let ((system-file-path (concat (oref obj :root-dir) (oref obj :system-file)))
         (old-version-str (oref obj :version-str)))
