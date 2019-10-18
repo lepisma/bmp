@@ -47,10 +47,10 @@ NOTE: We might need to change the way of specification but most
     (when (file-exists-p bmpfile)
       (bmp-bmpfile-project :root-dir default-directory
                            :bmpfile bmpfile
-                           :spec (read-from-string
-                                  (with-temp-buffer
-                                    (insert-file-contents-literally bmpfile)
-                                    (buffer-string)))))))
+                           :spec (car (read-from-string
+                                       (with-temp-buffer
+                                         (insert-file-contents-literally bmpfile)
+                                         (buffer-string))))))))
 
 (defun bmp-bmpfile-read-version-str (spec-pair)
   "Read version string provided the spec pair of filepath and
