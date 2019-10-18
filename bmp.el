@@ -35,6 +35,7 @@
 (require 'cl-lib)
 
 (require 'bmp-base)
+(require 'bmp-bmpfile)
 (require 'bmp-node)
 (require 'bmp-poetry)
 (require 'bmp-elisp)
@@ -42,7 +43,8 @@
 (require 'bmp-lisp)
 
 (defcustom bmp-project-fns
-  '(bmp-poetry-get-project
+  '(bmp-bmpfile-get-project
+    bmp-poetry-get-project
     bmp-node-get-project
     bmp-elisp-get-project
     bmp-lein-get-project
