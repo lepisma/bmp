@@ -7,7 +7,7 @@ For bmp to read and write versions, you need to specify where and how to get the
 version string(s). There are two ways of specifying this.
 
 ** ~.bmpfile~
-For projects where you can point to the place where semver is written using
+For projects where you can point to the places where semver is written using
 filepaths and regexes within, you can just put a ~.bmpfile~ in the repository root
 with the following content:
 
