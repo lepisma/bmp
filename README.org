@@ -21,7 +21,7 @@ A sample ~.bmpfile~ is present in this repository [[./.bmpfile][here]].
 
 ** Custom project detectors
 #+begin_quote
-Using bmpfile is recommended as the following mechanism was old and is useless
+Using bmpfile is recommended as the following mechanism is old and useless
 unless you have something other than regex patterns in mind.
 #+end_quote
 
