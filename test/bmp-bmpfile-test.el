@@ -2,7 +2,7 @@
 
 (describe "Version string check"
   (it "works on empty input"
-    (expect (bmp-bmpfile-version-strs-consistent? '())))
+    (expect (not (bmp-bmpfile-version-strs-consistent? '()))))
   (it "works with regular cases"
     (expect (bmp-bmpfile-version-strs-consistent? '("12" "12" "12")))
     (expect (bmp-bmpfile-version-strs-consistent? '("0.0.0" "0.0.0" "0.0.0"))))
