@@ -3,9 +3,27 @@
 Semver bumper for Emacs. Run ~bmp~ inside a project to choose the type of update
 required.
 
-For bmp to detect a /type of project/ (like poetry based), you need to write a
-project /detector/ function and a class (inheriting ~bmp-project~) with a few
-methods.
+For bmp to read and write versions, you need to specify where and how to get the
+version string(s). There are two ways of specifying this.
+
+** ~.bmpfile~
+For projects where you can point to the place where semver is written using
+filepaths and regexes within, you can just put a ~.bmpfile~ in the repository root
+with the following content:
+
+#+begin_quote emacs-lisp
+;; The group 1 constraint doesn't feel nice but it works for me as of now.
+(("./relative-file-path" . "regex for version string in group 1")
+ ("./another-file-with-version" . "regex in second file"))
+#+end_quote
+
+A sample ~.bmpfile~ is present in this repository [[./.bmpfile][here]].
+
+** Custom project detectors
+#+begin_quote
+Using bmpfile is recommended as the following mechanism was old and is useless
+unless you have something other than regex patterns in mind.
+#+end_quote
 
 A detector function might look at the current ~default-directory~ and return an
 instance of the new project class. For example, the node detector is the
