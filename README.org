@@ -11,11 +11,11 @@ For projects where you can point to the place where semver is written using
 filepaths and regexes within, you can just put a ~.bmpfile~ in the repository root
 with the following content:
 
-#+begin_quote emacs-lisp
-;; The group 1 constraint doesn't feel nice but it works for me as of now.
-(("./relative-file-path" . "regex for version string in group 1")
- ("./another-file-with-version" . "regex in second file"))
-#+end_quote
+#+begin_src emacs-lisp
+  ;; The group 1 constraint doesn't feel nice but it works for me as of now.
+  (("./relative-file-path" . "regex for version string in group 1")
+   ("./another-file-with-version" . "regex in second file"))
+#+end_src
 
 A sample ~.bmpfile~ is present in this repository [[./.bmpfile][here]].
 
