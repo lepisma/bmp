@@ -31,7 +31,7 @@
 (require 'magit)
 
 ;; Forward declaration, definition is in bmp.el
-(defvar bmp-release-branch)
+(defvar bmp-release-branches)
 
 (defun bmp-parse-version (version-str)
   "Convert semver VERSION-STR to a list of numbers."
