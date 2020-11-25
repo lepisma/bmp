@@ -51,8 +51,8 @@
     bmp-lisp-get-project)
   "Functions for getting projects")
 
-(defcustom bmp-release-branch "master"
-  "Branch where releases (and so bumps) happen.")
+(defcustom bmp-release-branches (list "master" "main")
+  "Branches where releases (and so bumps) happen.")
 
 (defun bmp-current-project ()
   "Return current project if we are in one."
@@ -69,9 +69,9 @@ problem."
   (let ((diffs (mapcar #'string-trim (split-string (shell-command-to-string "git status --porcelain") "\n"))))
     (not (null (cl-remove-if (lambda (l) (or (string-prefix-p "?" l) (string-equal l ""))) diffs)))))
 
-(defun bmp-git-release-branch-p ()
+(defmacro bmp-git-release-branch-p ()
   "Check if we are on the release branch for current project."
-  (magit-branch-p bmp-release-branch))
+  `(or ,@(mapcar #'magit-branch-p bmp-release-branches)))
 
 ;;;###autoload
 (defun bmp ()
