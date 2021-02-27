@@ -69,9 +69,9 @@ problem."
   (let ((diffs (mapcar #'string-trim (split-string (shell-command-to-string "git status --porcelain") "\n"))))
     (not (null (cl-remove-if (lambda (l) (or (string-prefix-p "?" l) (string-equal l ""))) diffs)))))
 
-(defmacro bmp-git-release-branch-p ()
+(defun bmp-git-release-branch-p ()
   "Check if we are on the release branch for current project."
-  `(or ,@(mapcar #'magit-branch-p bmp-release-branches)))
+  (some #'magit-branch-p bmp-release-branches))
 
 ;;;###autoload
 (defun bmp ()
@@ -85,7 +85,7 @@ problem."
       (when (bmp-git-dirty-p)
         (cl-return (message "Git repository dirty")))
 
-      (when (not (bmp-git-release-branch-p))
+      (unless (bmp-git-release-branch-p)
         ;; TODO: This doesn't look like a good strategy. Maybe we should allow
         ;;       to create custom preconditions.
         (cl-return (message "Not on release branch %s" bmp-release-branches)))
