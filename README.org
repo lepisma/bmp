@@ -1,3 +1,7 @@
+#+begin_quote
+Development for this project has moved to sourcehut [[https://git.sr.ht/~lepisma/bmp][here]]. This repository is now in a read-only state.
+#+end_quote
+
 #+TITLE: bmp
 
 Semver bumper for Emacs. Run ~bmp~ inside a project to choose the type of update
